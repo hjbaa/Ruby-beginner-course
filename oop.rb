@@ -46,7 +46,7 @@ end
 # класс поезда
 class Train
   attr_accessor :speed
-  attr_reader :type, :current_station, :route
+  attr_reader :type, :current_station, :route, :carriage_number
 
   def initialize(number, type, carriage_number)
     @number = number
