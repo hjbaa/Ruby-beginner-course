@@ -53,8 +53,6 @@ class Train
     @type = type
     @carriage_number = carriage_number.to_i
     @speed = 0
-    @train_route = nil
-    @current_station = nil
   end
 
   def stop
