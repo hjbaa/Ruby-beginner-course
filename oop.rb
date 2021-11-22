@@ -18,7 +18,7 @@ class Station
   end
 
   def trains_by_type_number(type)
-    @trains.select { |train| train.type == type }.count
+    trains_by_type(type).count
   end
 
   def send_train(train)
@@ -74,18 +74,18 @@ class Train
   end
 
   def move_forward
-    return nil if last_station?
+    return if last_station?
 
     @current_station.send_train
-    @current_station = route.stations[next_station]
+    @current_station = next_station
     @current_station.add_train(self)
   end
 
   def move_back
-    return nil if first_station?
+    return if first_station?
 
     @current_station.send_train
-    @current_station = route.stations[prev_station]
+    @current_station = prev_station
     @current_station.add_train(self)
   end
 
