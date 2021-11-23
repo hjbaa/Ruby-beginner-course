@@ -4,6 +4,6 @@
 class PassengerCarriage < Carriage
 
   def initialize
-    super { 'passenger' }
+    @type = 'passenger'
   end
 end

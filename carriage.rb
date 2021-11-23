@@ -4,9 +4,7 @@
 class Carriage
   attr_reader :type
 
-  def initialize
-    self.type = yield
-  end
+
 
   private # нам не нужно, чтобы дочерние классы могли переписывать свой тип, поэтому private
 

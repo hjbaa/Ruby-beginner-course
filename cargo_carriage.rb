@@ -4,6 +4,6 @@
 class CargoCarriage < Carriage
 
   def initialize
-    super { 'cargo' }
+    @type = 'cargo'
   end
 end
