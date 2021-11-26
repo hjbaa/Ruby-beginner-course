@@ -1,14 +1,27 @@
 # frozen_string_literal: true
 
+require_relative 'modules'
+
 # класс поезда
 class Train
+  include Manufacturer
+  include InstanceCounter
+  extend AllObjects
   attr_accessor :speed
   attr_reader :current_station, :route, :type, :number, :carriages
+
+  class << self
+    def find(number)
+      @all.select { |train| train.number == number}
+    end
+  end
 
   def initialize(number)
     @number = number
     @carriages = []
     @speed = 0
+    self.class.all << self
+    register_instance
   end
 
   def stop

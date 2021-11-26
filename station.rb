@@ -1,12 +1,16 @@
 # frozen_string_literal: true
 
+require_relative 'modules'
 # класс станции
 class Station
+  extend AllObjects
+  include InstanceCounter
   attr_reader :name, :trains
 
   def initialize(name)
     @name = name
     @trains = []
+    self.class.all << self
   end
 
   def add_train(train)
