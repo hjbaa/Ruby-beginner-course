@@ -52,7 +52,7 @@ class Main
         show_stations
       when 10
         show_trains_on_station
-      when 11
+      else
         break
       end
       puts "\n\n ------------ \n\n"
@@ -95,7 +95,6 @@ class Main
       puts "Станция №#{i} - #{station.name}"
       i += 1
     end
-
   end
 
   def show_trains_on_station
@@ -131,7 +130,7 @@ class Main
   def add_route
     if @stations.count < 2
       puts 'Недостаточно станций для создания маршрута!'
-      return nil
+      nil
     else
       puts 'Введите название начальной станции:'
       first_station_name = gets.chomp
@@ -142,7 +141,6 @@ class Main
       @routes << Route.new(first_station, last_station)
       puts 'Маршрут добавлен!'
     end
-
   end
 
   def add_station_for_route
@@ -161,7 +159,7 @@ class Main
     station = station_by_name(station_name)
     case n
     when 1
-      unless @stations.find(station).nil?
+      if @stations.find(station).nil?
         route.insert_station(station)
         puts 'Станция добавлена в маршрут!'
       else
