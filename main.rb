@@ -79,10 +79,16 @@ class Main
   end
 
   def add_station
-    puts 'Введите название станции: '
-    name = gets.chomp
-    @stations << Station.new(name)
-    puts 'Станция добавлена!'
+    begin
+      puts 'Введите название станции: '
+      name = gets.chomp
+      @stations << Station.new(name)
+    rescue RuntimeError => e
+      puts e.message
+      puts 'Введите название заново!'
+      retry
+    end
+    puts 'Успешно добавлено!'
   end
 
   def show_stations
@@ -112,26 +118,29 @@ class Main
   end
 
   def add_train
-    puts 'Введите номер поезда:'
-    train_number = gets.to_i
-    puts 'Введите тип поезда:'
-    puts '1 - грузовой'
-    puts '2 - пассажирский'
-    n = gets.to_i
-    case n
-    when 1
-      @trains << CargoTrain.new(train_number)
-    when 2
-      @trains << PassengerTrain.new(train_number)
+    begin
+      puts 'Введите номер поезда:'
+      train_number = gets.to_i
+      puts 'Введите тип поезда:'
+      puts '1 - грузовой'
+      puts '2 - пассажирский'
+      n = gets.to_i
+      case n
+      when 1
+        @trains << CargoTrain.new(train_number)
+      when 2
+        @trains << PassengerTrain.new(train_number)
+      end
+    rescue RuntimeError => e
+      puts e.message
+      puts 'Введите номер заново!'
+      retry
     end
     puts 'Поезд добавлен!'
   end
 
   def add_route
-    if @stations.count < 2
-      puts 'Недостаточно станций для создания маршрута!'
-      nil
-    else
+    begin
       puts 'Введите название начальной станции:'
       first_station_name = gets.chomp
       puts 'Введите название конечной станции:'
@@ -139,8 +148,12 @@ class Main
       first_station = station_by_name(first_station_name)
       last_station = station_by_name(last_station_name)
       @routes << Route.new(first_station, last_station)
-      puts 'Маршрут добавлен!'
+    rescue RuntimeError => e
+      puts e.message
+      puts 'Введите заново!'
+      retry
     end
+    puts 'Маршрут добавлен!'
   end
 
   def add_station_for_route

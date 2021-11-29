@@ -48,3 +48,14 @@ module AllObjects
     @all ||= []
   end
 end
+
+# модуль для подключения в классы train, station и route. Этот код одинаков во всех перечисленных классах =>
+# лучше вынести в модуль, чтобы избежать дублирование кода
+module Validate
+  def valid?
+    validate!
+    true
+  rescue RuntimeError
+    false
+  end
+end
