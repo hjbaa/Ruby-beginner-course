@@ -31,6 +31,10 @@ class Station
     @trains.delete(train)
   end
 
+  def each_train
+    @trains.each { |train| yield(train) if block_given? }
+  end
+
   private
 
   def validate!
