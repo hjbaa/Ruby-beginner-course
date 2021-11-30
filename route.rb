@@ -6,6 +6,7 @@ require_relative 'modules'
 class Route
   include InstanceCounter
   include Validate
+
   attr_reader :stations
 
   def initialize(first_station, last_station)

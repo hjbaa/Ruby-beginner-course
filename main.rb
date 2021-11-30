@@ -140,6 +140,7 @@ class Main
   end
 
   def add_route
+
     begin
       puts 'Введите название начальной станции:'
       first_station_name = gets.chomp
