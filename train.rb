@@ -11,7 +11,7 @@ class Train
   attr_accessor :speed
   attr_reader :current_station, :route, :type, :number, :carriages
 
-  NUMBER = /^[a-zа-я0-9]{3}-?[a-zа-я0-9]{2}$/im.freeze
+  NUMBER = /^[a-zа-я0-9]{3}-?[a-zа-я0-9]{2}$/i.freeze
   # регулярное выражение содержит [a-zа-я0-9], а не [\d\w]
   # для того, чтобы можно было вводить русские буквы
 
@@ -70,6 +70,10 @@ class Train
 
   def prev_station
     route.stations[route.stations.find_index(current_station) - 1] unless first_station?
+  end
+
+  def each_carriage
+    carriages.each { |carriage| yield(carriage) if block_given? }
   end
 
   protected

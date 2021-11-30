@@ -52,6 +52,10 @@ class Main
         show_stations
       when 10
         show_trains_on_station
+      when 11
+        fill_carriage
+      when 12
+        show_trains_carriages
       else
         break
       end
@@ -73,7 +77,9 @@ class Main
     puts '8 - переместить поезд по маршруту'
     puts '9 - просмотреть список станций'
     puts '10 - посмотреть список поездов на станции'
-    puts '11 - выход из программы'
+    puts '11 - занять место/объем в вагоне'
+    puts '12 - показать вагоны у поезда'
+    puts '13 - выход из программы'
     puts 'Ваш ответ: '
     n = gets.to_i
   end
@@ -111,16 +117,14 @@ class Main
       puts 'На станции нет поездов!'
     else
       puts 'На станции находятся поезда со следующими номерами: '
-      station.trains.each do |train|
-        puts "Поезд №#{train.number}"
-      end
+      station.each_train { |train| puts "Поезд №#{train.number}" }
     end
   end
 
   def add_train
     begin
       puts 'Введите номер поезда:'
-      train_number = gets.to_i
+      train_number = gets.chomp
       puts 'Введите тип поезда:'
       puts '1 - грузовой'
       puts '2 - пассажирский'
@@ -158,7 +162,13 @@ class Main
   end
 
   def add_station_for_route
-    return if show_routes == '404'
+    begin
+      show_routes
+    rescue RuntimeError => e
+      puts e.message
+      puts 'Добавьте сначала маршрут!'
+      return nil
+    end
 
     puts 'Выберите маршрут для редактирования:'
     route_number = gets.to_i
@@ -168,7 +178,7 @@ class Main
     puts 'Ваш ответ: '
     n = gets.to_i
 
-    puts 'Введите название станции: '
+    puts 'Введите название промежуточной станции: '
     station_name = gets.chomp
     station = station_by_name(station_name)
     case n
@@ -196,12 +206,24 @@ class Main
   end
 
   def assign_route
-    return if show_trains == '404'
+    begin
+      show_trains
+    rescue RuntimeError => e
+      puts e.message
+      puts 'Добавьте сначала поезд!'
+      return nil
+    end
 
     puts 'Введите номер поезда, которому необходио назначить маршрут:'
-    train_number = gets.to_i
+    train_number = gets.chomp
 
-    return if show_routes == '404'
+    begin
+      show_routes
+    rescue RuntimeError => e
+      puts e.message
+      puts 'Добавьте сначала маршрут!'
+      return nil
+    end
 
     puts 'Введите номер маршрута, который необходимо назначить:'
     route_number = gets.to_i
@@ -212,25 +234,41 @@ class Main
   end
 
   def add_carriage
-    return if show_trains == '404'
+    begin
+      show_trains
+    rescue RuntimeError => e
+      puts e.message
+      puts 'Добавьте сначала поезд!'
+      return nil
+    end
 
     puts 'Введите номер поезда, к которому необходимо прицепить вагон:'
-    train_number = gets.to_i
+    train_number = gets.chomp
     train = train_by_number(train_number)
-    carriage = if train.type == 'passenger'
-                 PassengerCarriage.new
-               else
-                 CargoCarriage.new
-               end
+    if train.type == 'passenger'
+      puts 'Введите количество мест в вагоне:'
+      seats_number = gets.to_i
+      carriage = PassengerCarriage.new(seats_number)
+    else
+      puts 'Введите вместимость (объем) вагона:'
+      volume = gets.to_i
+      carriage = CargoCarriage.new(volume)
+    end
     train.attach_carriage(carriage)
     puts 'Вагон прицеплен!'
   end
 
   def delete_carriage
-    return if show_trains == '404'
+    begin
+      show_trains
+    rescue RuntimeError => e
+      puts e.message
+      puts 'Добавьте сначала поезд!'
+      return nil
+    end
 
     puts 'Введите номер поезда, от которого необходимо отцепить вагон:'
-    train_number = gets.to_i
+    train_number = gets.chomp
     train = train_by_number(train_number)
     unless train.carriages.count.positive?
       puts 'Вагонов нет!'
@@ -241,11 +279,14 @@ class Main
   end
 
   def move_train
-    return if show_trains == '404'
-
-    puts 'Введите номер поезда, который необходимо переместить:'
-    train_number = gets.to_i
-    train = train_by_number(train_number)
+    begin
+      show_trains
+    rescue RuntimeError => e
+      puts e.message
+      puts 'Добавьте сначала поезд!'
+      return nil
+    end
+    train = train_
     puts 'Куда необходимо переместить поезд?'
     puts '1 - вперед'
     puts '2 - назад'
@@ -260,18 +301,20 @@ class Main
   end
 
   def train_by_number(number)
+    raise 'Нет поезда с таким номером!' unless @trains.find { |train| train.number == number }
+
     @trains.find { |train| train.number == number }
   end
 
   def station_by_name(name)
+    raise 'Нет станции с таким названием!' unless @stations.find { |station| station.name == name }
+
     @stations.find { |station| station.name == name }
   end
 
   def show_routes
-    if @routes.empty?
-      puts 'Нет маршрутов!'
-      return '404'
-    end
+    raise 'Нет маршрутов!' if @routes.empty?
+
     i = 1
     @routes.each do |route|
       puts "Маршрут №#{i}:"
@@ -286,10 +329,8 @@ class Main
   end
 
   def show_trains
-    if @trains.empty?
-      puts 'Нет поездов!'
-      return '404'
-    end
+    raise 'Нет поездов!' if @trains.empty?
+
     @trains.each do |train|
       type = if train.type == 'passenger'
                'пассажирский'
@@ -298,5 +339,68 @@ class Main
              end
       puts "Поезд №#{train.number}, тип - #{type}"
     end
+  end
+
+  def show_trains_carriages
+    begin
+      show_trains
+    rescue RuntimeError => e
+      puts e.message
+      puts 'Сначала добавьте поезд!'
+      return nil
+    end
+    train = train_
+    if train.type == 'cargo'
+      train.each_carriage { |carriage| puts "#{carriage}, вместимость: #{carriage.volume}, свободно: #{carriage.free_volume}" }
+    else
+      train.each_carriage { |carriage| puts "#{carriage}, вместимость: #{carriage.capacity}, свободно: #{carriage.free_seats}" }
+    end
+    train
+  end
+
+  def fill_carriage
+    train = show_trains_carriages
+    return nil unless train
+
+    if train.type == 'cargo'
+      begin
+        puts 'Введите номер вагона, в который надо добавить груз:'
+        i = gets.to_i
+        puts 'Введите объем груза:'
+        volume = gets.to_i
+        train.carriages[i - 1].put_load(volume)
+      rescue RuntimeError => e
+        puts e.message
+        puts 'Недостаточно места в вагоне!'
+        return nil
+      end
+      puts 'Успешно добавлено!'
+    else
+      begin
+        puts 'Введите номер вагона, в который надо посадить пассажира:'
+        i = gets.to_i
+        carriage = train.carriages[i - 1]
+        train.carriages[i - 1].take_seat
+      rescue RuntimeError => e
+        puts e.message
+        puts 'Недостаточно места в вагоне!'
+        return nil
+      end
+      puts 'Успешно добавлено!'
+    end
+  end
+
+  def train_
+    puts 'Введите номер поезда:'
+    number = gets.chomp
+
+    begin
+      train = train_by_number(number)
+    rescue RuntimeError => e
+      puts e.message
+      puts 'Введите номер поезда заново!'
+      retry
+    end
+    train
   end
 end
