@@ -37,7 +37,6 @@ module InstanceCounter
     def register_instance
       self.class.increase_objects_num
     end
-
   end
 end
 
@@ -48,6 +47,7 @@ module AllObjects
     @all ||= []
   end
 end
+
 # модуль для подключения в классы train, station и route. Этот код одинаков во всех перечисленных классах =>
 # лучше вынести в модуль, чтобы избежать дублирование кода
 module Validate

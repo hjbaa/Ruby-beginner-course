@@ -6,11 +6,11 @@ require_relative 'modules'
 class Train
   include Manufacturer
   include InstanceCounter
-
   include Validate
   extend AllObjects
   attr_accessor :speed
   attr_reader :current_station, :route, :type, :number, :carriages
+
   NUMBER = /^[a-zа-я0-9]{3}-?[a-zа-я0-9]{2}$/im.freeze
   # регулярное выражение содержит [a-zа-я0-9], а не [\d\w]
   # для того, чтобы можно было вводить русские буквы

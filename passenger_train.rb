@@ -6,5 +6,4 @@ class PassengerTrain < Train
     super(number)
     @type = 'passenger'
   end
-
 end
