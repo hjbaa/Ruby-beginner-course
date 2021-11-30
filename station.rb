@@ -5,10 +5,12 @@ require_relative 'modules'
 class Station
   extend AllObjects
   include InstanceCounter
+  include Validate
   attr_reader :name, :trains
 
   def initialize(name)
     @name = name
+    validate!
     @trains = []
     self.class.all << self
   end
@@ -27,5 +29,11 @@ class Station
 
   def send_train(train)
     @trains.delete(train)
+  end
+
+  private
+
+  def validate!
+    raise 'Name could not be nil!' if name.nil?
   end
 end

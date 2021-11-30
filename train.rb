@@ -6,18 +6,24 @@ require_relative 'modules'
 class Train
   include Manufacturer
   include InstanceCounter
+
+  include Validate
   extend AllObjects
   attr_accessor :speed
   attr_reader :current_station, :route, :type, :number, :carriages
+  NUMBER = /^[a-zа-я0-9]{3}-?[a-zа-я0-9]{2}$/im.freeze
+  # регулярное выражение содержит [a-zа-я0-9], а не [\d\w]
+  # для того, чтобы можно было вводить русские буквы
 
   class << self
     def find(number)
-      @all.select { |train| train.number == number}
+      @all.select { |train| train.number == number }
     end
   end
 
   def initialize(number)
     @number = number
+    validate!
     @carriages = []
     @speed = 0
     self.class.all << self
@@ -78,5 +84,7 @@ class Train
     current_station == route.stations[-1]
   end
 
-
+  def validate!
+    raise 'Number the has invalid format' if number !~ NUMBER
+  end
 end
