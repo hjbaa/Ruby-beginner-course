@@ -46,7 +46,7 @@ describe 'All tests' do
 
   describe 'Test4' do
     it 'should return false' do
-      temp = Test3.new
+      temp = Test4.new
       expect(temp.valid?).to eq(false)
       temp.a = 123
       expect(temp.valid?).to eq(false)
@@ -55,10 +55,28 @@ describe 'All tests' do
     end
 
     it 'should return true' do
-      temp = Test3.new
+      temp = Test4.new
       temp.a = '123'
       expect(temp.valid?).to eq(true)
     end
   end
 
+
+  describe Test5 do
+    it 'should work correctly' do
+      temp = Test5.new
+      expect(temp.a).to eq(nil)
+      expect(temp.b).to eq(nil)
+      temp.a = 12
+      temp.b = 'abcd'
+      expect(temp.a).to eq(12)
+      expect(temp.b).to eq('abcd')
+      temp.a = 'abc'
+      temp.b = 123
+      expect(temp.a_history).to eq([12, 'abc'])
+      expect(temp.b_history).to eq(['abcd', 123])
+      expect(temp.c).to eq(nil)
+      expect { temp.c = 'abcd' }.to raise_exception(RuntimeError)
+    end
+  end
 end

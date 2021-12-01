@@ -4,7 +4,7 @@
 module Accessors
   def attr_accessor_with_history(*names)
     names.each do |name|
-      history_arr_name = '@var_history'
+      history_arr_name = "@#{name}_history"
       var_name = "@#{name}".to_sym
       define_method(name) { instance_variable_get(var_name) }
 
@@ -85,17 +85,30 @@ module Validation
       tmp = self.class.class_variable_get('@@hash_table')
       tmp.each_pair do |variable, val|
         val.each_pair do |validation_type, param|
-          value = instance_variable_get(variable)
-          case validation_type
-          when 'presence'.to_sym
-            raise "#{variable} if empty or nil" if value.nil? || (value.instance_of?(String) && value.strip.empty?)
-          when 'type'.to_sym
-            raise "Wrong type of variable #{variable}" unless value.instance_of?(param)
-          else
-            raise "Wrong format of variable #{variable}" if value !~ param
-          end
+          send("validate_#{validation_type.to_s}", variable, param)
         end
       end
+      nil
+    end
+
+    def validate_presence(variable, param = nil)
+      value = instance_variable_get(variable)
+      raise "#{variable} if empty or nil" if value.nil? || (value.instance_of?(String) && value.strip.empty?)
+
+      nil
+    end
+
+    def validate_type(variable, param)
+      value = instance_variable_get(variable)
+      raise "Wrong type of variable #{variable}" unless value.instance_of?(param)
+
+      nil
+    end
+
+    def validate_format(variable, param)
+      value = instance_variable_get(variable)
+      raise "Wrong format of variable #{variable}" if value !~ param
+
       nil
     end
   end

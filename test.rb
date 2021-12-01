@@ -4,7 +4,6 @@
 
 require_relative 'metaprogramming_modules'
 
-
 # класс для тестирования
 class Test1
   include Validation
@@ -56,5 +55,17 @@ class Test4
 
   def initialize
     @a = nil
+  end
+end
+
+class Test5
+  extend Accessors
+  attr_accessor_with_history :a, :b
+
+  strong_attr_accessor :c, Integer
+  def initialize
+    @a = nil
+    @b = nil
+    @c = nil
   end
 end
