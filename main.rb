@@ -80,13 +80,13 @@ class Main
     puts '11 - занять место/объем в вагоне'
     puts '12 - показать вагоны у поезда'
     puts '13 - выход из программы'
-    puts 'Ваш ответ: '
+    print 'Ваш ответ: '
     n = gets.to_i
   end
 
   def add_station
     begin
-      puts 'Введите название станции: '
+      print 'Введите название станции: '
       name = gets.chomp
       @stations << Station.new(name)
     rescue RuntimeError => e
@@ -110,7 +110,7 @@ class Main
   end
 
   def show_trains_on_station
-    puts 'Введите название станции:'
+    print 'Введите название станции:'
     station_name = gets.chomp
     station = station_by_name(station_name)
     if station.trains.empty?
@@ -123,9 +123,9 @@ class Main
 
   def add_train
     begin
-      puts 'Введите номер поезда:'
+      print 'Введите номер поезда:'
       train_number = gets.chomp
-      puts 'Введите тип поезда:'
+      print 'Введите тип поезда:'
       puts '1 - грузовой'
       puts '2 - пассажирский'
       n = gets.to_i
@@ -146,9 +146,9 @@ class Main
   def add_route
 
     begin
-      puts 'Введите название начальной станции:'
+      print 'Введите название начальной станции:'
       first_station_name = gets.chomp
-      puts 'Введите название конечной станции:'
+      print 'Введите название конечной станции:'
       last_station_name = gets.chomp
       first_station = station_by_name(first_station_name)
       last_station = station_by_name(last_station_name)
@@ -170,15 +170,15 @@ class Main
       return nil
     end
 
-    puts 'Выберите маршрут для редактирования:'
+    print 'Выберите маршрут для редактирования:'
     route_number = gets.to_i
     route = @routes[route_number - 1]
     puts '1 - добавить станцию'
     puts '2 - удалить станцию'
-    puts 'Ваш ответ: '
+    print 'Ваш ответ: '
     n = gets.to_i
 
-    puts 'Введите название промежуточной станции: '
+    print 'Введите название промежуточной станции: '
     station_name = gets.chomp
     station = station_by_name(station_name)
     case n
@@ -214,7 +214,7 @@ class Main
       return nil
     end
 
-    puts 'Введите номер поезда, которому необходио назначить маршрут:'
+    print 'Введите номер поезда, которому необходио назначить маршрут:'
     train_number = gets.chomp
 
     begin
@@ -225,7 +225,7 @@ class Main
       return nil
     end
 
-    puts 'Введите номер маршрута, который необходимо назначить:'
+    print 'Введите номер маршрута, который необходимо назначить:'
     route_number = gets.to_i
     train = train_by_number(train_number)
     route = @routes[route_number - 1]
@@ -242,7 +242,7 @@ class Main
       return nil
     end
 
-    puts 'Введите номер поезда, к которому необходимо прицепить вагон:'
+    print 'Введите номер поезда, к которому необходимо прицепить вагон:'
     train_number = gets.chomp
     train = train_by_number(train_number)
     if train.type == 'passenger'
@@ -267,7 +267,7 @@ class Main
       return nil
     end
 
-    puts 'Введите номер поезда, от которого необходимо отцепить вагон:'
+    print 'Введите номер поезда, от которого необходимо отцепить вагон:'
     train_number = gets.chomp
     train = train_by_number(train_number)
     unless train.carriages.count.positive?
@@ -290,6 +290,7 @@ class Main
     puts 'Куда необходимо переместить поезд?'
     puts '1 - вперед'
     puts '2 - назад'
+    print 'Ваш ответ: '
     n = gets.to_i
     case n
     when 1
@@ -364,9 +365,9 @@ class Main
 
     if train.type == 'cargo'
       begin
-        puts 'Введите номер вагона, в который надо добавить груз:'
+        print 'Введите номер вагона, в который надо добавить груз:'
         i = gets.to_i
-        puts 'Введите объем груза:'
+        print 'Введите объем груза:'
         volume = gets.to_i
         train.carriages[i - 1].put_load(volume)
       rescue RuntimeError => e
@@ -374,7 +375,6 @@ class Main
         puts 'Недостаточно места в вагоне!'
         return nil
       end
-      puts 'Успешно добавлено!'
     else
       begin
         puts 'Введите номер вагона, в который надо посадить пассажира:'
@@ -386,12 +386,12 @@ class Main
         puts 'Недостаточно места в вагоне!'
         return nil
       end
-      puts 'Успешно добавлено!'
     end
+    puts 'Успешно добавлено!'
   end
 
   def train_
-    puts 'Введите номер поезда:'
+    print 'Введите номер поезда:'
     number = gets.chomp
 
     begin

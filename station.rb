@@ -1,13 +1,16 @@
 # frozen_string_literal: true
 
 require_relative 'modules'
+require_relative 'metaprogramming_modules'
 # класс станции
 class Station
   extend AllObjects
   include InstanceCounter
-  include Validate
+  include Validation
   attr_reader :name, :trains
 
+  validate :name, :presence
+  validate :name, :type, String
   def initialize(name)
     @name = name
     validate!
@@ -33,11 +36,5 @@ class Station
 
   def each_train
     @trains.each { |train| yield(train) if block_given? }
-  end
-
-  private
-
-  def validate!
-    raise 'Name could not be nil!' if name.nil?
   end
 end
