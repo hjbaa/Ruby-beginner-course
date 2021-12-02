@@ -1,19 +1,23 @@
 # frozen_string_literal: true
 
 require_relative 'modules'
+require_relative 'metaprogramming_modules'
 
 # класс поезда
 class Train
   include Manufacturer
   include InstanceCounter
-  include Validate
+  include Validation
   extend AllObjects
   attr_accessor :speed
   attr_reader :current_station, :route, :type, :number, :carriages
 
   NUMBER = /^[a-zа-я0-9]{3}-?[a-zа-я0-9]{2}$/i.freeze
+  validate :number, :type, NUMBER
+
   # регулярное выражение содержит [a-zа-я0-9], а не [\d\w]
   # для того, чтобы можно было вводить русские буквы
+
 
   class << self
     def find(number)
@@ -88,7 +92,4 @@ class Train
     current_station == route.stations[-1]
   end
 
-  def validate!
-    raise 'Number the has invalid format' if number !~ NUMBER
-  end
 end
