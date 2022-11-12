@@ -1,21 +1,25 @@
 # frozen_string_literal: true
 
-# геттеры сеттеры
+# A module that implements the custom accessor functionality
 module Accessors
+  # standard attr_accessor, but it saves value history of instance variable
   def attr_accessor_with_history(*names)
     names.each do |name|
       history_arr_name = "@#{name}_history"
       var_name = "@#{name}".to_sym
+
+      # defining getter-method
       define_method(name) { instance_variable_get(var_name) }
 
+      # defining setter-method
       define_method("#{name}=".to_sym) do |value|
-        temp = instance_variable_get(history_arr_name)
+        temp_history = instance_variable_get(history_arr_name)
 
-        if temp.nil?
+        if temp_history.nil?
           instance_variable_set(history_arr_name, [value])
         else
-          temp << value
-          instance_variable_set(history_arr_name, temp)
+          temp_history << value
+          instance_variable_set(history_arr_name, temp_history)
         end
 
         instance_variable_set(var_name, value)
@@ -25,6 +29,7 @@ module Accessors
     end
   end
 
+  # standard attr_accessor, but with type checking of instance variable
   def strong_attr_accessor(variable, required_class)
     var_name = "@#{variable}".to_sym
     var_class_name = required_class
@@ -38,43 +43,45 @@ module Accessors
   end
 end
 
-# валидация
+# A module that implements validation functionality
 module Validation
   def self.included(base)
     base.extend ClassMethods
     base.send :include, InstanceMethods
   end
 
-  # модуль для методов класса
   module ClassMethods
-    def validate(var_name, valid_type, req_validation = nil)
+    # method that allows to write validations in class. Validation_param is set to nil by default because
+    # we have presence validation, that doesn't accept additional arguments
+    def validate(var_name, validation_type, validation_param = nil)
       variable = "@#{var_name}".to_sym
-      validation_type = valid_type
-      param = req_validation
-      # Пробовал внутри этой функции определять метод validate!, но столкнулся с проблемой, что работает только для
-      # последнего вызова validate. Т.е. у одной переменной не проверялись бы сразу несколько параметров валидации.
-      # Поэтому не смог придумать ничего лучше, кроме как сделать хэш всего того, что нужно проверить на валидность.
-      if class_variable_defined?('@@hash_table')
-        tmp = class_variable_get('@@hash_table')
-        if tmp.has_key?(variable)
-          tmp[variable][valid_type] = param
+
+      param = validation_param
+
+      # hash table contains all necessary validations for instance variables
+      if class_variable_defined?('@@validations_table')
+        table = class_variable_get('@@validations_table')
+        if table.key?(variable)
+          table[variable][validation_type] = param
         else
-          tmp[variable] = {valid_type => param}
+          table[variable] = { validation_type => param }
         end
       else
-        class_variable_set('@@hash_table', { variable => { validation_type => param } })
+        class_variable_set('@@validations_table', { variable => { validation_type => param } })
       end
-
     end
   end
 
-  # модуль для инстанс-методов
   module InstanceMethods
+    attr_reader :errors
+
     def valid?
+      # list of errors is filled only after calling valid? method
+      @errors = []
+
       begin
         send(:validate!)
-      rescue RuntimeError => e
-        puts e.message
+      rescue RuntimeError
         return false
       end
 
@@ -82,34 +89,33 @@ module Validation
     end
 
     def validate!
-      tmp = self.class.class_variable_get('@@hash_table')
+      tmp = self.class.class_variable_get('@@validations_table')
       tmp.each_pair do |variable, val|
         val.each_pair do |validation_type, param|
-          send("validate_#{validation_type.to_s}", variable, param)
+          send("validate_#{validation_type}", variable, param)
+        rescue RuntimeError => e
+          @errors << e.message unless @errors.include?(e.message)
+          next
         end
       end
-      nil
+
+      raise RuntimeError unless @errors.empty?
     end
 
-    def validate_presence(variable, param = nil)
+    def validate_presence(variable, _param = nil)
       value = instance_variable_get(variable)
-      raise "#{variable} if empty or nil" if value.nil? || (value.instance_of?(String) && value.strip.empty?)
-
-      nil
+      raise "#{variable} is empty or nil" if value.nil? || (value.instance_of?(String) && value.strip.empty?)
     end
 
     def validate_type(variable, param)
       value = instance_variable_get(variable)
-      raise "Wrong type of variable #{variable}" unless value.instance_of?(param)
-
-      nil
+      raise "Wrong type of variable #{variable}, expected: #{param}" unless value.instance_of?(param)
     end
 
     def validate_format(variable, param)
       value = instance_variable_get(variable)
-      raise "Wrong format of variable #{variable}" if value !~ param
 
-      nil
+      raise "Wrong format of variable #{variable}" if value !~ param
     end
   end
 end
